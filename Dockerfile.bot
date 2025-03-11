@@ -1,0 +1,19 @@
+# Используем официальный образ Python
+FROM python:3.9-slim
+
+# Устанавливаем рабочую директорию
+WORKDIR /app
+
+# Копируем зависимости для бота
+COPY requirements_bot.txt .
+
+# Устанавливаем зависимости
+RUN pip install --no-cache-dir -r requirements_bot.txt
+
+# Копируем исходный код
+COPY src/telegram_bot.py .
+COPY models/response_embeddings.npy ./models/
+COPY data/processed/context_answer.csv ./data/processed/
+
+# Запускаем бота
+CMD ["python", "telegram_bot.py"]

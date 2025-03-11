@@ -1,0 +1,18 @@
+services:
+  telegram-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile.bot
+    container_name: house-md-telegram-bot
+    env_file:
+      - .env
+    restart: unless-stopped
+
+  web-app:
+    build:
+      context: .
+      dockerfile: Dockerfile.web
+    container_name: house-md-web-app
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
