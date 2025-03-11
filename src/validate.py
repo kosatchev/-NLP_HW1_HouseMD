@@ -14,6 +14,8 @@ DATA_PATH = "../data/processed/context_answer.csv"
 OUTPUT_DIR = "../models"
 MODEL_NAME = 'bert-base-uncased'
 
+# Переносим модель на GPU, если доступно
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 def get_bert_embedding(texts, model, tokenizer, batch_size=16):
     """Получает эмбеддинги для нескольких текстов с помощью BERT."""
