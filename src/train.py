@@ -2,7 +2,6 @@ import os
 import torch
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 from sklearn.metrics.pairwise import cosine_similarity
 from transformers import BertTokenizer, BertModel
@@ -24,7 +23,7 @@ device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 model.to(device)
 
 
-def get_bert_embedding(texts, model, tokenizer):
+def get_bert_embedding(texts, model, tokenizer, batch_size=16):
     """Получает эмбеддинги для нескольких текстов с помощью BERT."""
     # Токенизация в батчах
     inputs = tokenizer(
@@ -68,20 +67,10 @@ def train(data_path, output_dir, batch_size=16):
 
     # Получаем эмбеддинги для всех ответов с использованием tqdm и батчей
     response_embeddings = []
-    similarities_history = []  # Для хранения истории косинусного сходства
-
     for i in tqdm(range(0, len(df), batch_size), desc="Создание эмбеддингов"):
         batch_responses = df['response'][i:i + batch_size].tolist()
-        embeddings = get_bert_embedding(batch_responses, model, tokenizer)
+        embeddings = get_bert_embedding(batch_responses, model, tokenizer, batch_size)
         response_embeddings.append(embeddings)
-
-        # Примерный контекст для визуализации (можно заменить на реальный)
-        example_context = "Why are you late?"
-        context_embedding = get_bert_embedding([example_context], model, tokenizer)
-
-        # Вычисляем косинусное сходство для текущего батча
-        batch_similarities = cosine_similarity(context_embedding, embeddings)[0]
-        similarities_history.extend(batch_similarities)  # Сохраняем историю
 
     response_embeddings = np.vstack(response_embeddings)  # Объединяем батчи в один массив
 
@@ -92,17 +81,6 @@ def train(data_path, output_dir, batch_size=16):
     os.makedirs(output_dir, exist_ok=True)
     save_embeddings(response_embeddings, os.path.join(output_dir, 'response_embeddings.npy'))
     print(f"Эмбеддинги сохранены в {output_dir}")
-
-    # Визуализация процесса обучения
-    plt.figure(figsize=(10, 6))
-    plt.plot(similarities_history, label="Косинусное сходство")
-    plt.xlabel("Номер батча")
-    plt.ylabel("Косинусное сходство")
-    plt.title("Изменение косинусного сходства в процессе обучения")
-    plt.legend()
-    plt.grid(True)
-    plt.savefig(os.path.join(output_dir, 'training_process.png'))  # Сохраняем график
-    plt.show()
 
 
 def infer(context, response_embeddings, df, model, tokenizer):

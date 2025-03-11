@@ -5,10 +5,58 @@ from sklearn.model_selection import train_test_split
 from sklearn.metrics.pairwise import cosine_similarity
 from tqdm import tqdm
 import os
+import pandas as pd
+from transformers import BertTokenizer, BertModel
 
-def validate(response_embeddings, df, model, tokenizer, test_size=0.2, batch_size=16):
+
+# Константы
+DATA_PATH = "../data/processed/context_answer.csv"
+OUTPUT_DIR = "../models"
+MODEL_NAME = 'bert-base-uncased'
+
+
+def get_bert_embedding(texts, model, tokenizer, batch_size=16):
+    """Получает эмбеддинги для нескольких текстов с помощью BERT."""
+    # Токенизация в батчах
+    inputs = tokenizer(
+        texts, 
+        return_tensors='pt', 
+        truncation=True, 
+        padding=True, 
+        max_length=512
+    )
+    inputs = {key: value.to(device) for key, value in inputs.items()}  # Переносим данные на GPU
+
+    with torch.no_grad():
+        outputs = model(**inputs)
+
+    # Используем среднее значение эмбеддингов токенов как вектор текста
+    embeddings = outputs.last_hidden_state.mean(dim=1).cpu().numpy()  # Переносим обратно на CPU
+    return embeddings
+
+
+def load_embeddings(input_path):
+    """Загружает эмбеддинги из файла."""
+    return np.load(input_path)
+
+
+def load_data(data_path):
+    """Загружает обработанные данные."""
+    return pd.read_csv(data_path)
+
+
+def validate(response_embeddings_path, data_path, output_dir, test_size=0.2, batch_size=16):
     """Оценивает качество модели на тестовой выборке."""
-    
+    # Загружаем данные
+    df = load_data(data_path)
+
+    # Загружаем эмбеддинги
+    response_embeddings = load_embeddings(response_embeddings_path)
+
+    # Загружаем модель и токенизатор
+    tokenizer = BertTokenizer.from_pretrained(MODEL_NAME)
+    model = BertModel.from_pretrained(MODEL_NAME)
+
     # Определяем устройство (GPU, если доступно, иначе CPU)
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     model.to(device)  # Перемещаем модель на устройство
@@ -52,22 +100,17 @@ def validate(response_embeddings, df, model, tokenizer, test_size=0.2, batch_siz
     plt.title("Распределение косинусного сходства")
     plt.legend()
     plt.grid(True)
-    plt.savefig(os.path.join(OUTPUT_DIR, 'validation_histogram.png'))  # Сохраняем график
+    plt.savefig(os.path.join(output_dir, 'validation_histogram.png'))  # Сохраняем график
     plt.show()
 
     return accuracy
 
+
 if __name__ == "__main__":
+    # Пути к данным и эмбеддингам
+    response_embeddings_path = os.path.join(OUTPUT_DIR, 'response_embeddings.npy')
+    data_path = DATA_PATH
+    output_dir = OUTPUT_DIR
 
-    # Загружаем эмбеддинги и данные
-    response_embeddings = load_embeddings(os.path.join(OUTPUT_DIR, 'response_embeddings.npy'))
-    df = load_data(DATA_PATH)
-
-    # Пример инференса
-    context = "Why are you late?"
-    best_response = infer(context, response_embeddings, df, model, tokenizer)
-    print(f"Контекст: {context}")
-    print(f"Ответ: {best_response}")
-
-    # Валидация модели
-    validate(response_embeddings, df, model, tokenizer)
+    # Запуск валидации
+    validate(response_embeddings_path, data_path, output_dir)
