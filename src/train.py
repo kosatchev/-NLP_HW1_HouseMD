@@ -3,6 +3,7 @@ import torch
 import numpy as np
 import pandas as pd
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 from sklearn.metrics.pairwise import cosine_similarity
 from transformers import BertTokenizer, BertModel
 
@@ -12,18 +13,18 @@ DATA_PATH = "../data/processed/context_answer.csv"
 OUTPUT_DIR = "../models"
 BATCH_SIZE = 16
 MODEL_NAME = 'bert-base-uncased'
+MAX_LENGTH = 512
 
-
-# Загрузка предобученной модели и токенизатора
-tokenizer = BertTokenizer.from_pretrained(MODEL_NAME)
-model = BertModel.from_pretrained(MODEL_NAME)
 
 # Переносим модель на GPU, если доступно
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-model.to(device)
+
+# Загрузка предобученной модели и токенизатора
+tokenizer = BertTokenizer.from_pretrained(MODEL_NAME)
+model = BertModel.from_pretrained(MODEL_NAME).to(device)
 
 
-def get_bert_embedding(texts, model, tokenizer, batch_size=16):
+def get_bert_embedding(texts, model, tokenizer, batch_size=BATCH_SIZE):
     """Получает эмбеддинги для нескольких текстов с помощью BERT."""
     # Токенизация в батчах
     inputs = tokenizer(
@@ -31,7 +32,7 @@ def get_bert_embedding(texts, model, tokenizer, batch_size=16):
         return_tensors='pt', 
         truncation=True, 
         padding=True, 
-        max_length=512
+        max_length=MAX_LENGTH
     )
     inputs = {key: value.to(device) for key, value in inputs.items()}  # Переносим данные на GPU
 
@@ -60,7 +61,7 @@ def load_embeddings(input_path):
     return np.load(input_path)
 
 
-def train(data_path, output_dir, batch_size=16):
+def train(data_path, output_dir, batch_size=BATCH_SIZE):
     """Обучает модель и сохраняет эмбеддинги."""
     # Загружаем данные
     df = load_data(data_path)
