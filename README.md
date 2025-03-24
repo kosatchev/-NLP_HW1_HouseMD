@@ -24,7 +24,7 @@
 **Архитектура**: BERT для получения эмбеддингов, косинусное сходство для поиска ответов.
 
 
-## Веб-приложение
+## Веб-приложение [http://kosatchev.ru:8000/ (NO SSL)](http://kosatchev.ru:8000/)
 
 ![Веб-приложение](images/web_app.png)
 
@@ -42,7 +42,7 @@ python src/web_app.py
 ```
 
 
-## Telegram-бот
+## Telegram-бот [@hate_speech_bot](https://t.me/Hate_speech_bot)
 
 ![Бот](images/telegram_bot.png)
 
