@@ -26,6 +26,8 @@
 
 ## Веб-приложение
 
+![Веб-приложение](images/web_app.png)
+
 **Технологии**: FastAPI, HTML, JavaScript.
 
 ### Функционал
@@ -36,11 +38,13 @@
 ### Запуск
 
 ```bash
-python src/app.py
+python src/web_app.py
 ```
 
 
 ## Telegram-бот
+
+![Бот](images/telegram_bot.png)
 
 **Технологии**: python-telegram-bot.
 
@@ -57,6 +61,8 @@ python src/telegram_bot.py
 
 
 ## Инференс командной строки
+
+![Командная строка](images/cli_inference.png)
 
 ### Функционал
 
