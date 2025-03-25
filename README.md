@@ -4,8 +4,8 @@
 
 Этот проект представляет собой retrieval-based чат-бота, который имитирует стиль и манеру речи доктора Хауса из сериала "Доктор Хаус". Бот использует BERT для получения эмбеддингов текста и косинусное сходство для поиска наиболее подходящих ответов. Проект включает:
 
-- Веб-интерфейс на FastAPI. [http://kosatchev.ru:8000/ (NO SSL)](http://kosatchev.ru:8000/)
-- Telegram-бот. [@hate_speech_bot](https://t.me/Hate_speech_bot)
+- Веб-интерфейс на FastAPI.
+- Telegram-бот.
 - Бот в виде командной строки.
 - Docker-контейнеры для развертывания на сервере.
 
@@ -24,7 +24,7 @@
 **Архитектура**: BERT для получения эмбеддингов, косинусное сходство для поиска ответов.
 
 
-## Веб-приложение [http://kosatchev.ru:8000/ (NO SSL)](http://kosatchev.ru:8000/)
+## Веб-приложение
 
 ![Веб-приложение](images/web_app.png)
 
@@ -42,7 +42,7 @@ python src/web_app.py
 ```
 
 
-## Telegram-бот [@hate_speech_bot](https://t.me/Hate_speech_bot)
+## Telegram-бот
 
 ![Бот](images/telegram_bot.png)
 
@@ -113,7 +113,7 @@ pip install -r requirements_train.txt
 
 ## Графики
 В результате тестирования, получилось такое распределение
-![Описание графика](images/similarities.png)
+![График](images/similarities.png)
 
 
 ## Выводы
@@ -130,15 +130,23 @@ pip install -r requirements_train.txt
 ### **Итоговая структура проекта**
 ```
 house-md-chatbot/
-├── data/
+├── processed/
 │ ├── raw/
-│ │ ├── context_answer.csv
-│ └── processed/
-│ │ ├── season1.csv
-│ │ ├── ...
-│ │ ├── season8.csv
+│ │ └── context_answer.csv
+│ └── data/
+│   ├── season1.csv
+│   ├── ...
+│   └── season8.csv
+├── images/
+│ ├── cli_inference.png
+│ ├── similarities.png
+│ ├── telegram_bot.png
+│ └── web_app.png
 ├── models/
 │ └── response_embeddings.npy
+├── notebooks/
+│ ├── data_preprocessing.ipynb
+│ └── model_training.ipynb
 ├── src/
 │ ├── web_app.py
 │ ├── telegram_bot.py
@@ -146,17 +154,14 @@ house-md-chatbot/
 │ ├── train.py
 │ ├── validate.py
 │ └── cli_inference.py
-├── images/
-│ └── similarities.png
 ├── templates/
 │ └── index.html
+├── .env
+├── .gitignore
+├── docker-compose.yml
 ├── Dockerfile.bot
 ├── Dockerfile.web
-├── docker-compose.yml
 ├── requirements_bot.txt
 ├── requirements_web.txt
-├── requirements_train.txt
-├── README.md
-├── .gitignore
-└── .env
+└── README.md
 ```
